@@ -13,7 +13,6 @@ Currently using all data
 Not differentiating between game mode or competition type
 May be skewing data
 """
-
 np.random.seed(7)
 
 # https://stackoverflow.com/questions/70220437/can-you-use-lda-linear-discriminant-analysis-as-part-of-sklearn-pipeline-for-p
