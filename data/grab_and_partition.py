@@ -77,6 +77,38 @@ def hero_data(data_frame):
     # print(total) = 1028256
     return None
 
+def hero_win_rate(data_frame):
+    path = Path(__file__).parent / "../data/heros.json"
+    hero_types = json.load(open(path))
+    types = data_frame.iloc[:, 4:117].to_numpy() # col 3 but with zero index col 2
+    win_or_lose = data_frame.iloc[:, 0].to_numpy()
+    win_rate = {}
+    print(types.shape)
+    print(types[:, 0].shape)
+
+    for hero in hero_types['heroes']:
+        win = 0
+        lose = 0
+        hero_id = hero['id']
+        for index in range(len(types[:, hero_id - 1])):   #element in hero's column
+            if (types[index, hero_id - 1] == 1 & win_or_lose[index] == 1) | (types[index, hero_id - 1] == -1 & win_or_lose[index] == -1):
+                win += 1
+            elif types[index, hero_id - 1] != 0:
+                lose += 1
+            elif (types[index, hero_id - 1] == 1 & win_or_lose[index] == -1) | (types[index, hero_id - 1] == -1 & win_or_lose[index] == 1):
+                lose +=1
+
+        if win + lose != 0:
+            print(hero['name'] + ":= {}".format(round((win / (win + lose)), 2)))
+            win_rate[hero['name']] = round((win / (win + lose)), 2)
+        else:
+            print("AHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH {}".format(hero['name']))
+            win_rate[hero['name']] = 0
+
+    # from https://www.geeksforgeeks.org/python-sort-python-dictionaries-by-key-or-value/
+    print(sorted(win_rate.items(), key=lambda kv: (kv[1], kv[0])))
+    return None
+
 def prob_of_error(predictions, true_labels):
     correct_pred_count = 0
     for x in [-1, 1]:
@@ -107,6 +139,9 @@ def main():
 
     print("\nTotal heroes numbers across test and train")
     hero_data(pd.concat([dota_train_df, dota_test_df]))
+
+    print("\nTotal heroes win rate across test and train")
+    hero_win_rate(pd.concat([dota_train_df, dota_test_df]))
 
 if __name__ == '__main__':
     main()
