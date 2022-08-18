@@ -57,6 +57,17 @@ X_fit = lda.fit(x_train, y_train)  # Is a fitted estimator, not actual data to p
 z_train = lda.transform(x_train)
 z_test = lda.transform(x_test)
 w = X_fit.coef_[0]
+test_preds = lda.predict(x_test)
+
+def prob_of_error(predictions, true_labels):
+        correct_pred_count = 0
+        for x in [-1, 1]:
+            correct_pred_count += len(np.argwhere((predictions == x) & (true_labels == x)))
+        return 1 - (correct_pred_count / len(true_labels))
+
+
+print("\nTest Set Pr(Error)\nTrained on full training set")
+print(prob_of_error(test_preds, y_test))
 
 # print(z)
 # print(y_train)
@@ -64,50 +75,50 @@ w = X_fit.coef_[0]
 
 
 
-# ******************************* ROC *******************************
+# # ******************************* ROC *******************************
 
-# Generate ROC curve samples
-def estimate_roc(discriminant_score, label):
-    Nlabels = np.array((sum(label == 0), sum(label == 1)))
+# # Generate ROC curve samples
+# def estimate_roc(discriminant_score, label):
+#     Nlabels = np.array((sum(label == 0), sum(label == 1)))
 
-    # Sorting necessary so the resulting FPR and TPR axes plot threshold probabilities in order as a line
-    sorted_score = sorted(discriminant_score)
-    print("1")
+#     # Sorting necessary so the resulting FPR and TPR axes plot threshold probabilities in order as a line
+#     sorted_score = sorted(discriminant_score)
+#     print("1")
 
-    # Use gamma values that will account for every possible classification split
-    gammas = ([sorted_score[0] - float_info.epsilon] +
-              sorted_score +
-              [sorted_score[-1] + float_info.epsilon])
+#     # Use gamma values that will account for every possible classification split
+#     gammas = ([sorted_score[0] - float_info.epsilon] +
+#               sorted_score +
+#               [sorted_score[-1] + float_info.epsilon])
 
-    # Calculate the decision label for each observation for each gamma
-    decisions = [discriminant_score >= g for g in gammas]
-    print("2")
+#     # Calculate the decision label for each observation for each gamma
+#     decisions = [discriminant_score >= g for g in gammas]
+#     print("2")
 
-    ind10 = [np.argwhere((d==1) & (label==0)) for d in decisions]
-    p10 = [len(inds)/Nlabels[0] for inds in ind10]
-    ind11 = [np.argwhere((d==1) & (label==1)) for d in decisions]
-    p11 = [len(inds)/Nlabels[1] for inds in ind11]
-    print("3")
+#     ind10 = [np.argwhere((d==1) & (label==0)) for d in decisions]
+#     p10 = [len(inds)/Nlabels[0] for inds in ind10]
+#     ind11 = [np.argwhere((d==1) & (label==1)) for d in decisions]
+#     p11 = [len(inds)/Nlabels[1] for inds in ind11]
+#     print("3")
 
-    # ROC has FPR on the x-axis and TPR on the y-axis
-    roc = np.array((p10, p11))
-    print("4")
+#     # ROC has FPR on the x-axis and TPR on the y-axis
+#     roc = np.array((p10, p11))
+#     print("4")
 
-    return roc, gammas
+#     return roc, gammas
 
-# Estimate the ROC curve for this LDA classifier
-roc_lda, gamma_lda = estimate_roc(z_test, y_test)
+# # Estimate the ROC curve for this LDA classifier
+# roc_lda, gamma_lda = estimate_roc(z_test, y_test)
 
-# ROC returns FPR vs TPR, but prob error needs FNR so take 1-TPR
-prob_error_lda = np.array((roc_lda[0,:], 1 - roc_lda[1,:])).T.dot(Nl.T / N_test)
+# # ROC returns FPR vs TPR, but prob error needs FNR so take 1-TPR
+# prob_error_lda = np.array((roc_lda[0,:], 1 - roc_lda[1,:])).T.dot(Nl.T / N_test)
 
-# Min prob error
-min_prob_error_lda = np.min(prob_error_lda)
-print(min_prob_error_lda)
-min_ind = np.argmin(prob_error_lda)
-print(min_ind)
-opt_gamma_lda = gamma_lda[min_ind]
-print(opt_gamma_lda)
+# # Min prob error
+# min_prob_error_lda = np.min(prob_error_lda)
+# print(min_prob_error_lda)
+# min_ind = np.argmin(prob_error_lda)
+# print(min_ind)
+# opt_gamma_lda = gamma_lda[min_ind]
+# print(opt_gamma_lda)
 
 
 
