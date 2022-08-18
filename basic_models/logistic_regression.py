@@ -44,10 +44,10 @@ def main():
     X_test = dota_test_df.iloc[:, 1:].to_numpy()
     y_test = dota_test_df.iloc[:, 0].to_numpy()
 
-    pipe = make_pipeline(LogisticRegression())
-
-    pipe.fit(X_train, y_train)
-    predictions = pipe.predict(X_test)
+    #pipe = make_pipeline(LogisticRegression())
+    log_reg = LogisticRegression(max_iter=1000)
+    log_reg.fit(X_train, y_train)
+    predictions = log_reg.predict(X_test)
 
 
     def prob_of_error(predictions, true_labels):

@@ -1,7 +1,9 @@
+import json
+
 import pandas as pd
 import zipfile
 from pathlib import Path
-
+import numpy as np
 # ValueError: Multiple files found in ZIP file. Only one file per ZIP: ['dota2Train.csv', 'dota2Test.csv']
 """
 Each row of the dataset is a single game with the following features (in the order in the vector):
@@ -39,6 +41,14 @@ def game_amounts(data_frame):
     #grab jason dictionary
     # add up
     # return splits
+    path = Path(__file__).parent / "../data/lobbies.json"
+    game_types = json.load(open(path))
+    types = data_frame.iloc[:, 2].to_numpy() # col 3 but with zero index col 2
+
+    for game_mode in game_types['lobbies']:
+        number_of_current_mode = len(np.argwhere(types == game_mode['id']))
+        print(game_mode['name'] + ":= {}".format(number_of_current_mode))
+    print("total number of games:= {}".format(len(types)))
     return None
 
 def prob_of_error(predictions, true_labels):
@@ -59,6 +69,15 @@ def main():
     win_amounts(y_train)
     print("\nWin amounts for test set")
     win_amounts(y_test)
+
+    print("\nTotal game mode numbers across test and train")
+    game_amounts(pd.concat([dota_train_df, dota_test_df]))
+
+    print("\nTotal game mode numbers test")
+    game_amounts(dota_test_df)
+
+    print("\nTotal game mode numbers train")
+    game_amounts(dota_train_df)
 
 if __name__ == '__main__':
     main()
