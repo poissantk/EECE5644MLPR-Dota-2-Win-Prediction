@@ -51,6 +51,32 @@ def game_amounts(data_frame):
     print("total number of games:= {}".format(len(types)))
     return None
 
+def hero_data(data_frame):
+    #grab jason dictionary
+    # add up
+    # return splits
+    path = Path(__file__).parent / "../data/heros.json"
+    hero_types = json.load(open(path))
+    types = data_frame.iloc[:, 4:117].to_numpy() # col 3 but with zero index col 2
+    print(types.shape)
+    print(types[:, 0].shape)
+    total = 0
+
+    for hero in hero_types['heroes']:
+        num_on_team_1 = 0
+        num_on_team_neg1 = 0
+        hero_id = hero['id']
+        for element in types[:, hero_id - 1]:   #element in hero's column
+            if element == 1:
+                num_on_team_1 += 1
+            elif element == -1:
+                num_on_team_neg1 +=1
+        print(hero['name'] + ":= {}".format(num_on_team_1 + num_on_team_neg1) + "           {}%".format(round(((num_on_team_1 + num_on_team_neg1) / 10282.56), 2)))
+        total += (num_on_team_1 + num_on_team_neg1)
+    # print("total number of games:= {}".format(len(types)))
+    # print(total) = 1028256
+    return None
+
 def prob_of_error(predictions, true_labels):
     correct_pred_count = 0
     for x in [-1, 1]:
@@ -78,6 +104,9 @@ def main():
 
     print("\nTotal game mode numbers train")
     game_amounts(dota_train_df)
+
+    print("\nTotal heroes numbers across test and train")
+    hero_data(pd.concat([dota_train_df, dota_test_df]))
 
 if __name__ == '__main__':
     main()
