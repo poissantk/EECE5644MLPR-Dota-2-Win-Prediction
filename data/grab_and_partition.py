@@ -35,11 +35,18 @@ def win_amounts(labels):
     print("Team 1 wins = {}\npercent of wins = {}".format(wins_label_one, label_one_percent))
     print("Team -1 wins = {}\npercent of wins = {}".format(wins_label_neg_one, label_neg_one_percent))
 
+def game_amounts(data_frame):
+    #grab jason dictionary
+    # add up
+    # return splits
+    return None
+
 def prob_of_error(predictions, true_labels):
     correct_pred_count = 0
     for x in [-1, 1]:
         correct_pred_count += len(np.argwhere((predictions == x) & (true_labels == x)))
     return 1 - (correct_pred_count / len(true_labels))
+
 
 def main():
     dota_train_df, dota_test_df = get_data()
