@@ -4,6 +4,7 @@ import pandas as pd
 import zipfile
 from pathlib import Path
 import numpy as np
+import matplotlib.pyplot as plt # For general plotting
 # ValueError: Multiple files found in ZIP file. Only one file per ZIP: ['dota2Train.csv', 'dota2Test.csv']
 """
 Each row of the dataset is a single game with the following features (in the order in the vector):
@@ -18,8 +19,8 @@ This means that each row has five '1' and five '-1' values.
 """
 def get_data():
     path = Path(__file__).parent / "../data/dota2Dataset.zip"
-    dota_train_df = pd.read_csv(zipfile.ZipFile(path).open('dota2Train.csv'))
-    dota_test_df = pd.read_csv(zipfile.ZipFile(path).open('dota2Test.csv'))
+    dota_train_df = pd.read_csv(zipfile.ZipFile(path).open('dota2Train.csv'), header=None)
+    dota_test_df = pd.read_csv(zipfile.ZipFile(path).open('dota2Test.csv'), header=None)
 
 
     return dota_train_df, dota_test_df
@@ -83,6 +84,7 @@ def hero_win_rate(data_frame):
     types = data_frame.iloc[:, 4:117].to_numpy() # col 3 but with zero index col 2
     win_or_lose = data_frame.iloc[:, 0].to_numpy()
     win_rate = {}
+    list_win_rate = []
     print(types.shape)
     print(types[:, 0].shape)
 
@@ -95,19 +97,54 @@ def hero_win_rate(data_frame):
                 win += 1
             elif types[index, hero_id - 1] != 0:
                 lose += 1
-            elif (types[index, hero_id - 1] == 1 & win_or_lose[index] == -1) | (types[index, hero_id - 1] == -1 & win_or_lose[index] == 1):
-                lose +=1
 
         if win + lose != 0:
-            print(hero['name'] + ":= {}".format(round((win / (win + lose)), 2)))
-            win_rate[hero['name']] = round((win / (win + lose)), 2)
+            print(hero['name'] + ":= {}".format(round((win / (win + lose)), 4)))
+            win_rate[hero['name']] = round((win / (win + lose)), 4)
+            list_win_rate.append(round((win / (win + lose)), 4))
         else:
             print("AHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH {}".format(hero['name']))
             win_rate[hero['name']] = 0
+            list_win_rate.append(0)
 
     # from https://www.geeksforgeeks.org/python-sort-python-dictionaries-by-key-or-value/
-    print(sorted(win_rate.items(), key=lambda kv: (kv[1], kv[0])))
-    return None
+    # print(sorted(win_rate.items(), key=lambda kv: (kv[1], kv[0])))
+    print(win_rate)
+    print(len(list_win_rate))
+    return win_rate
+
+def transform_hero_data(data_frame, name_to_win_rate):
+    path = Path(__file__).parent / "../data/heros.json"
+    types = data_frame.iloc[:, 4:117].to_numpy() # col 3 but with zero index col 2
+    transformed_hero_data = np.zeros(types.shape[0])
+    print(name_to_win_rate)
+    id_to_heros = {}
+
+    hero_types = json.load(open(path))
+    for hero in hero_types['heroes']:
+        id_to_heros[hero['id']] = hero['name']
+    print(id_to_heros)
+
+    for sample_index in range(types.shape[0]):
+        sample_hero_score = 0
+        if sample_index == 0:
+            print(types[sample_index])
+        for hero_index in range(len(id_to_heros)):
+            # no hero 24
+            # hero index + 1 = hero id
+            if types[sample_index, hero_index] == 1:
+                sample_hero_score += name_to_win_rate[id_to_heros[hero_index + 1]]
+                if sample_index == 0:
+                    print(hero_index)
+                    print(name_to_win_rate[id_to_heros[hero_index + 1]])
+            elif types[sample_index, hero_index] == -1:
+                sample_hero_score = sample_hero_score - name_to_win_rate[id_to_heros[hero_index + 1]]
+                if sample_index == 0:
+                    print(hero_index)
+                    print(name_to_win_rate[id_to_heros[hero_index + 1]])
+        transformed_hero_data[sample_index] = sample_hero_score
+    
+    return transformed_hero_data
 
 def prob_of_error(predictions, true_labels):
     correct_pred_count = 0
@@ -140,8 +177,15 @@ def main():
     print("\nTotal heroes numbers across test and train")
     hero_data(pd.concat([dota_train_df, dota_test_df]))
 
-    print("\nTotal heroes win rate across test and train")
-    hero_win_rate(pd.concat([dota_train_df, dota_test_df]))
+    print("\nTotal heroes win rate train")
+    dict = hero_win_rate(dota_train_df)
+
+    print("\nTransforming hero data")
+    transformed_hero_data = transform_hero_data(dota_test_df, dict)
+    print(transformed_hero_data)
+
+    print(min(transformed_hero_data))
+    print(max(transformed_hero_data))
 
 if __name__ == '__main__':
     main()
