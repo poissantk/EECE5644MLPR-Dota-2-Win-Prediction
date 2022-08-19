@@ -38,9 +38,6 @@ def win_amounts(labels):
     print("Team -1 wins = {}\npercent of wins = {}".format(wins_label_neg_one, label_neg_one_percent))
 
 def game_amounts(data_frame):
-    #grab jason dictionary
-    # add up
-    # return splits
     path = Path(__file__).parent / "../data/lobbies.json"
     game_types = json.load(open(path))
     types = data_frame.iloc[:, 2].to_numpy() # col 3 but with zero index col 2
@@ -51,13 +48,26 @@ def game_amounts(data_frame):
     print("total number of games:= {}".format(len(types)))
     return None
 
+def split_data_by_lobby(data_frame):
+    path = Path(__file__).parent / "../data/lobbies.json"
+    game_types = json.load(open(path))
+    types = data_frame.iloc[:, 2].to_numpy() # col 3 but with zero index col 2
+    lobbies_and_their_data = {}
+    for game_mode in game_types['lobbies']:
+        # data based on label location
+        indices = np.argwhere(types == game_mode['id'])
+        data = data_frame.to_numpy()[indices, :]
+        lobbies_and_their_data[game_mode['name']] = data
+        print(game_mode['name'] + " shape:= {}".format(data.shape))
+    return lobbies_and_their_data
+
 def hero_data(data_frame):
     #grab jason dictionary
     # add up
     # return splits
     path = Path(__file__).parent / "../data/heros.json"
     hero_types = json.load(open(path))
-    types = data_frame.iloc[:, 4:117].to_numpy() # col 3 but with zero index col 2
+    types = data_frame.iloc[:, 4:117].to_numpy() # col 5 but with zero index col 4
     print(types.shape)
     print(types[:, 0].shape)
     total = 0
@@ -123,6 +133,7 @@ def main():
     X_test = dota_test_df.iloc[:, 1:].to_numpy()
     y_test = dota_test_df.iloc[:, 0].to_numpy()
 
+
     print("Win amounts for training set")
     win_amounts(y_train)
     print("\nWin amounts for test set")
@@ -142,6 +153,9 @@ def main():
 
     print("\nTotal heroes win rate across test and train")
     hero_win_rate(pd.concat([dota_train_df, dota_test_df]))
+
+    print("\nSplitting data by game type")
+    split_data_by_lobby(pd.concat([dota_train_df, dota_test_df]))
 
 if __name__ == '__main__':
     main()
