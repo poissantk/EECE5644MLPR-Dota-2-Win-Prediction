@@ -173,8 +173,7 @@ def hero_win_rate_2(data_frame):
     hero_wins = np.zeros(games.shape[1])
     hero_losses = np.zeros(games.shape[1])
 
-    print(hero_wins.shape)
-    print(games.shape[1])
+    heroes_and_their_winrate = {}
     for game_index, row in enumerate(games):
         if win_or_lose[game_index] == 1:
             for row_index, i in enumerate(row):
@@ -189,19 +188,24 @@ def hero_win_rate_2(data_frame):
                 elif i == 1:
                     hero_losses[row_index] += 1
 
-    for ident, wins, losses in zip(range(len(hero_wins)) ,hero_wins, hero_losses):
-        winrate = wins / (wins + losses)
-        hero_name = ""
-        for hero in hero_types:
-            print(ident)
-            print(hero['id'])
-            if hero['id'] == ident:
-                hero_name = hero['name']
-        print(hero_name + " winrate = {}".format(winrate))
+    for ident, wins, losses in zip(range(1, len(hero_wins)) ,hero_wins, hero_losses):
 
+        if wins + losses != 0: #24 is missing from data
+            winrate = float(wins) / (float(wins) + float(losses))
+            hero_name = ""
+            for hero in hero_types['heroes']:
+                if int(hero['id']) == ident:
+                    hero_name = hero['name']
+            heroes_and_their_winrate[hero_name] = winrate
+        else:
+            hero_name = ""
+            for hero in hero_types['heroes']:
+                if int(hero['id']) == ident:
+                    hero_name = hero['name']
+    return heroes_and_their_winrate
 def main():
     dota_train_df, dota_test_df = get_data()
-    hero_win_rate_2(dota_test_df)
+    print(hero_win_rate_2(pd.concat([dota_train_df, dota_test_df])))
     X_train = dota_train_df.iloc[:, 1:].to_numpy()
     y_train = dota_train_df.iloc[:, 0].to_numpy()
     X_test = dota_test_df.iloc[:, 1:].to_numpy()
