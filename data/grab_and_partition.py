@@ -16,6 +16,8 @@ Each row of the dataset is a single game with the following features (in the ord
 Value of 1 indicates that a player from team '1' played as that hero and '-1' for the other team. 
 Hero can be selected by only one player each game. 
 This means that each row has five '1' and five '-1' values.
+
+clinkz and underlord has no winrate listed
 """
 def get_data():
     path = Path(__file__).parent / "../data/dota2Dataset.zip"
