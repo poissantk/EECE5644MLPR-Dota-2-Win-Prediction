@@ -12,7 +12,7 @@ from pandas import array
 from scipy.stats import multivariate_normal # MVN not univariate
 from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay, roc_curve
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
-from grab_and_partition import hero_win_rate, transform_hero_data
+from grab_and_partition import hero_win_rate, transform_hero_data, split_data_by_lobby
 from sklearn.model_selection import KFold # Important new include
 
 import torch
@@ -128,145 +128,194 @@ print(prob_of_error(test_preds, new_y_test))
 
 
 
-# ******************************* Play with data set *******************************
-print("******************************* MLP *******************************")
+game_mode_split = split_data_by_lobby(dota_train_df)
+solo_data = game_mode_split["Solo Mid 1vs1"]
+solo_data = np.reshape(solo_data, (solo_data.shape[0], solo_data.shape[2]))
+print(solo_data.shape)
+print(solo_data)
+y_train_solo = solo_data[:, 0]
+x_train_solo = solo_data[:, 1:]
+
+game_mode_split_test = split_data_by_lobby(dota_test_df)
+solo_data_test = game_mode_split_test["Solo Mid 1vs1"]
+solo_data_test = np.reshape(solo_data_test, (solo_data_test.shape[0], solo_data_test.shape[2]))
+y_test_solo = solo_data_test[:, 0]
+x_test_solo = solo_data_test[:, 1:]
+
+
+lda = LinearDiscriminantAnalysis()
+X_fit = lda.fit(x_train_solo, y_train_solo)  # Is a fitted estimator, not actual data to project
+z_train = lda.transform(x_train_solo)
+z_test = lda.transform(x_test_solo)
+w = X_fit.coef_[0]
+test_preds = lda.predict(x_test_solo)
+
+print("\nTest Set Pr(Error)\nTrained on training set with only solo data")
+print(prob_of_error(test_preds, y_test_solo))
 
 
 
-y_train_0_or_1 = np.zeros_like(y_train)
-for index in range(y_train.shape[0]):
-    if y_train[index] == 1:
-        y_train_0_or_1[index] = 1
-    elif y_train[index] == -1:
-        y_train_0_or_1[index] = 0
-
-y_test_0_or_1 = np.zeros_like(y_test)
-for index in range(y_test.shape[0]):
-    if y_test[index] == 1:
-        y_test_0_or_1[index] = 1
-    elif y_test[index] == -1:
-        y_test_0_or_1[index] = 0
 
 
+tournament_data = game_mode_split["Tournament"]
+tournament_data = np.reshape(tournament_data, (tournament_data.shape[0], tournament_data.shape[2]))
+y_train_tournament = tournament_data[:, 0]
+x_train_tournament = tournament_data[:, 1:]
 
-def neural_net(X, y, P):
-    class TwoLayerMLP(nn.Module):
-        # Two-layer MLP (not really a perceptron activation function...) network class
+tournament_data_test = game_mode_split_test["Solo Mid 1vs1"]
+tournament_data_test = np.reshape(tournament_data_test, (tournament_data_test.shape[0], tournament_data_test.shape[2]))
+y_test_tournament = tournament_data_test[:, 0]
+x_test_tournament = tournament_data_test[:, 1:]
+
+lda = LinearDiscriminantAnalysis()
+X_fit = lda.fit(x_train_tournament, y_train_tournament)  # Is a fitted estimator, not actual data to project
+z_train = lda.transform(x_train_tournament)
+z_test = lda.transform(x_test_tournament)
+w = X_fit.coef_[0]
+test_preds = lda.predict(x_test_tournament)
+
+print("\nTest Set Pr(Error)\nTrained on training set with only tournament data")
+print(prob_of_error(test_preds, y_test_tournament))
+
+
+
+# # ******************************* Play with data set *******************************
+# print("******************************* MLP *******************************")
+
+
+
+# y_train_0_or_1 = np.zeros_like(y_train)
+# for index in range(y_train.shape[0]):
+#     if y_train[index] == 1:
+#         y_train_0_or_1[index] = 1
+#     elif y_train[index] == -1:
+#         y_train_0_or_1[index] = 0
+
+# y_test_0_or_1 = np.zeros_like(y_test)
+# for index in range(y_test.shape[0]):
+#     if y_test[index] == 1:
+#         y_test_0_or_1[index] = 1
+#     elif y_test[index] == -1:
+#         y_test_0_or_1[index] = 0
+
+
+
+# def neural_net(X, y, P):
+#     class TwoLayerMLP(nn.Module):
+#         # Two-layer MLP (not really a perceptron activation function...) network class
         
-        def __init__(self, input_dim, hidden_dim, C):
-            super(TwoLayerMLP, self).__init__()
-            # Fully connected layer WX + b mapping from input_dim (n) -> hidden_layer_dim
-            self.input_fc = nn.Linear(input_dim, hidden_dim)
-            # Output layer again fully connected mapping from hidden_layer_dim -> outputs_dim (C)
-            self.output_fc = nn.Linear(hidden_dim, C)
+#         def __init__(self, input_dim, hidden_dim, C):
+#             super(TwoLayerMLP, self).__init__()
+#             # Fully connected layer WX + b mapping from input_dim (n) -> hidden_layer_dim
+#             self.input_fc = nn.Linear(input_dim, hidden_dim)
+#             # Output layer again fully connected mapping from hidden_layer_dim -> outputs_dim (C)
+#             self.output_fc = nn.Linear(hidden_dim, C)
             
-        # Don't call this function directly!! 
-        # Simply pass input to model and forward(input) returns output, e.g. model(X)
-        def forward(self, X):
-            # X = [batch_size, input_dim (n)]
-            X = self.input_fc(X)
-            # Non-linear activation function, e.g. ReLU (default good choice)
-            # Could also choose F.softplus(x) for smooth-ReLU, empirically worse than ReLU
-            X = F.relu(X)
-            # X = [batch_size, hidden_dim]
-            # Connect to last layer and output 'logits'
-            y = self.output_fc(X)
-            return y
+#         # Don't call this function directly!! 
+#         # Simply pass input to model and forward(input) returns output, e.g. model(X)
+#         def forward(self, X):
+#             # X = [batch_size, input_dim (n)]
+#             X = self.input_fc(X)
+#             # Non-linear activation function, e.g. ReLU (default good choice)
+#             # Could also choose F.softplus(x) for smooth-ReLU, empirically worse than ReLU
+#             X = F.relu(X)
+#             # X = [batch_size, hidden_dim]
+#             # Connect to last layer and output 'logits'
+#             y = self.output_fc(X)
+#             return y
 
         
-    input_dim = X.shape[1]
-    n_hidden_neurons = P
-    output_dim = 2
+#     input_dim = X.shape[1]
+#     n_hidden_neurons = P
+#     output_dim = 2
 
-    # It's called an MLP but really it's not...
-    model = TwoLayerMLP(input_dim, n_hidden_neurons, output_dim)
+#     # It's called an MLP but really it's not...
+#     model = TwoLayerMLP(input_dim, n_hidden_neurons, output_dim)
 
-    def model_train(model, data, labels, criterion, optimizer, num_epochs=25):
-        # Apparently good practice to set this "flag" too before training
-        # Does things like make sure Dropout layers are active, gradients are updated, etc.
-        # Probably not a big deal for our toy network, but still worth developing good practice
-        model.train()
-        # Optimize the neural network
-        for epoch in range(num_epochs):
-            # These outputs represent the model's predicted probabilities for each class. 
-            outputs = model(data)
-            # Criterion computes the cross entropy loss between input and target
-            loss = criterion(outputs, labels)
-            # Set gradient buffers to zero explicitly before backprop
-            optimizer.zero_grad()
-            # Backward pass to compute the gradients through the network
-            loss.backward()
-            # GD step update
-            optimizer.step()
+#     def model_train(model, data, labels, criterion, optimizer, num_epochs=25):
+#         # Apparently good practice to set this "flag" too before training
+#         # Does things like make sure Dropout layers are active, gradients are updated, etc.
+#         # Probably not a big deal for our toy network, but still worth developing good practice
+#         model.train()
+#         # Optimize the neural network
+#         for epoch in range(num_epochs):
+#             # These outputs represent the model's predicted probabilities for each class. 
+#             outputs = model(data)
+#             # Criterion computes the cross entropy loss between input and target
+#             loss = criterion(outputs, labels)
+#             # Set gradient buffers to zero explicitly before backprop
+#             optimizer.zero_grad()
+#             # Backward pass to compute the gradients through the network
+#             loss.backward()
+#             # GD step update
+#             optimizer.step()
             
-        return model
+#         return model
 
 
-    # Stochastic GD with learning rate and momentum hyperparameters
-    optimizer = torch.optim.SGD(model.parameters(), lr=0.01, momentum=0.9)
-    # The nn.CrossEntropyLoss() loss function automatically performs a log_softmax() to 
-    # the output when validating, on top of calculating the negative log-likelihood using 
-    # nn.NLLLoss(), while also being more stable numerically... So don't implement from scratch
-    criterion = nn.CrossEntropyLoss()
-    num_epochs = 100
+#     # Stochastic GD with learning rate and momentum hyperparameters
+#     optimizer = torch.optim.SGD(model.parameters(), lr=0.01, momentum=0.9)
+#     # The nn.CrossEntropyLoss() loss function automatically performs a log_softmax() to 
+#     # the output when validating, on top of calculating the negative log-likelihood using 
+#     # nn.NLLLoss(), while also being more stable numerically... So don't implement from scratch
+#     criterion = nn.CrossEntropyLoss()
+#     num_epochs = 100
 
-    # Convert numpy structures to PyTorch tensors, as these are the data types required by the library
-    X_tensor = torch.FloatTensor(X)
-    y_tensor = torch.LongTensor(y)
+#     # Convert numpy structures to PyTorch tensors, as these are the data types required by the library
+#     X_tensor = torch.FloatTensor(X)
+#     y_tensor = torch.LongTensor(y)
 
-    # Trained model
-    model = model_train(model, X_tensor, y_tensor, criterion, optimizer, num_epochs=num_epochs)
-    return np.argmax(model(X_tensor).detach().numpy(), 1), model
-
-
-
-# Polynomial degrees ("hyperparameters") to evaluate 
-p_values = np.arange(1, 51, 5)
-n_p_values = p_values.shape[0] # np.max(p_values)
+#     # Trained model
+#     model = model_train(model, X_tensor, y_tensor, criterion, optimizer, num_epochs=num_epochs)
+#     return np.argmax(model(X_tensor).detach().numpy(), 1), model
 
 
-# Number of folds for CV
-K = 10
 
-# STEP 1: Partition the dataset into K approximately-equal-sized partitions
-# Shuffles data before doing the division into folds (not necessary, but a good idea)
-kf = KFold(n_splits=K, shuffle=True) 
+# # Polynomial degrees ("hyperparameters") to evaluate 
+# p_values = np.arange(1, 51, 5)
+# n_p_values = p_values.shape[0] # np.max(p_values)
 
-# Allocate space for CV
-# No need for training loss storage too but useful comparison
-mpe_train_mk = np.empty((n_p_values, K)) # Indexed by model m, data partition k
 
-index = 0
+# # Number of folds for CV
+# K = 10
 
-# STEP 2: Try all polynomial orders between 1 (best line fit) and 21 (big time overfit) M=2
-for p_value in p_values:
-    # K-fold cross validation
-    k = 0
-    # NOTE that these subsets are of the TRAINING dataset
-    # Imagine we don't have enough data available to afford another entirely separate validation set
-    for train_indices, valid_indices in kf.split(x_train):
-        # Extract the training and validation sets from the K-fold split
-        X_train_k = x_train[train_indices]
-        y_train_k = y_train_0_or_1[train_indices]
+# # STEP 1: Partition the dataset into K approximately-equal-sized partitions
+# # Shuffles data before doing the division into folds (not necessary, but a good idea)
+# kf = KFold(n_splits=K, shuffle=True) 
 
-        # Make predictions on both the training 
-        y_train_k_pred, _ = neural_net(X_train_k, y_train_k, int(p_value))
+# # Allocate space for CV
+# # No need for training loss storage too but useful comparison
+# mpe_train_mk = np.empty((n_p_values, K)) # Indexed by model m, data partition k
 
-        # Record MSE as well for this model and k-fold
-        mpe_train_mk[index, k] = prob_of_error(y_train_k_pred, y_train_k)
+# index = 0
 
-        k += 1
-    index += 1
+# # STEP 2: Try all polynomial orders between 1 (best line fit) and 21 (big time overfit) M=2
+# for p_value in p_values:
+#     # K-fold cross validation
+#     k = 0
+#     # NOTE that these subsets are of the TRAINING dataset
+#     # Imagine we don't have enough data available to afford another entirely separate validation set
+#     for train_indices, valid_indices in kf.split(x_train):
+#         # Extract the training and validation sets from the K-fold split
+#         X_train_k = x_train[train_indices]
+#         y_train_k = y_train_0_or_1[train_indices]
+
+#         # Make predictions on both the training 
+#         y_train_k_pred, _ = neural_net(X_train_k, y_train_k, int(p_value))
+
+#         # Record MSE as well for this model and k-fold
+#         mpe_train_mk[index, k] = prob_of_error(y_train_k_pred, y_train_k)
+
+#         k += 1
+#     index += 1
             
-# STEP 3: Compute the average MSE loss for that model (based in this case on degree d)
-mpe_train_m = np.mean(mpe_train_mk, axis=1) # Model average CV loss over folds
+# # STEP 3: Compute the average MSE loss for that model (based in this case on degree d)
+# mpe_train_m = np.mean(mpe_train_mk, axis=1) # Model average CV loss over folds
 
-# +1 as the index starts from 0 while the degrees start from 1
-optimal_p = np.argmin(mpe_train_m) + 1
-print(np.min(mpe_train_m))
-print("The model selected to best fit the data without overfitting is: P={}".format(optimal_p))
-
-
+# # +1 as the index starts from 0 while the degrees start from 1
+# optimal_p = np.argmin(mpe_train_m) + 1
+# print(np.min(mpe_train_m))
+# print("The model selected to best fit the data without overfitting is: P={}".format(optimal_p))
 
 
 
@@ -275,43 +324,45 @@ print("The model selected to best fit the data without overfitting is: P={}".for
 
 
 
-_, model = neural_net(x_train, y_train_0_or_1, int(optimal_p))  
-
-X_test_tensor = torch.FloatTensor(x_test)
-
-y_test_pred = np.argmax(model(X_test_tensor).detach().numpy(), 1)
-
-# Record MSE as well for this model and k-fold
-valid_prob_error = prob_of_error(y_test_pred, y_test_0_or_1)
-
-print("Valid prob error: {}".format(valid_prob_error))
 
 
+# _, model = neural_net(x_train, y_train_0_or_1, int(optimal_p))  
 
+# X_test_tensor = torch.FloatTensor(x_test)
 
+# y_test_pred = np.argmax(model(X_test_tensor).detach().numpy(), 1)
 
-y_train_pred_2, model_2 = neural_net(new_x_train, y_train_0_or_1, 50)
-print("\nTraining Set Pr(Error)\nTrained on training set")
-print(prob_of_error(y_train_pred_2, y_train_0_or_1))
+# # Record MSE as well for this model and k-fold
+# valid_prob_error = prob_of_error(y_test_pred, y_test_0_or_1)
 
-X_test_tensor = torch.FloatTensor(new_x_test) 
-y_test_pred = np.argmax(model_2(X_test_tensor).detach().numpy(), 1)
-# Record MSE as well for this model and k-fold
-valid_prob_error_2 = prob_of_error(y_test_pred, y_test_0_or_1)
-print("\nTest Set Pr(Error)\nTrained on training set")
-print(valid_prob_error_2)
+# print("Valid prob error: {}".format(valid_prob_error))
 
 
 
-y_train_pred, model = neural_net(x_train_no_heroes_train, y_train_0_or_1, 50)
-print("\nTraining Set Pr(Error)\nTrained on training set")
-print(prob_of_error(y_train_pred, y_train_0_or_1))
 
-X_test_tensor = torch.FloatTensor(x_test_no_heroes_test) 
-y_test_pred = np.argmax(model(X_test_tensor).detach().numpy(), 1)
-# Record MSE as well for this model and k-fold
-valid_prob_error_3 = prob_of_error(y_test_pred, y_test_0_or_1)
-print("\nTest Set Pr(Error)\nTrained on training set")
-print(valid_prob_error_3)
+
+# y_train_pred_2, model_2 = neural_net(new_x_train, y_train_0_or_1, 50)
+# print("\nTraining Set Pr(Error)\nTrained on training set")
+# print(prob_of_error(y_train_pred_2, y_train_0_or_1))
+
+# X_test_tensor = torch.FloatTensor(new_x_test) 
+# y_test_pred = np.argmax(model_2(X_test_tensor).detach().numpy(), 1)
+# # Record MSE as well for this model and k-fold
+# valid_prob_error_2 = prob_of_error(y_test_pred, y_test_0_or_1)
+# print("\nTest Set Pr(Error)\nTrained on training set")
+# print(valid_prob_error_2)
+
+
+
+# y_train_pred, model = neural_net(x_train_no_heroes_train, y_train_0_or_1, 50)
+# print("\nTraining Set Pr(Error)\nTrained on training set")
+# print(prob_of_error(y_train_pred, y_train_0_or_1))
+
+# X_test_tensor = torch.FloatTensor(x_test_no_heroes_test) 
+# y_test_pred = np.argmax(model(X_test_tensor).detach().numpy(), 1)
+# # Record MSE as well for this model and k-fold
+# valid_prob_error_3 = prob_of_error(y_test_pred, y_test_0_or_1)
+# print("\nTest Set Pr(Error)\nTrained on training set")
+# print(valid_prob_error_3)
 
 
