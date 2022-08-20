@@ -60,7 +60,7 @@ def split_data_by_lobby(data_frame):
         # data based on label location
         indices = np.argwhere(types == game_mode['id'])
         data = data_frame.to_numpy()[indices, :]
-        print(game_mode['name'] + " shape:= {}".format(data.shape))
+        #print(game_mode['name'] + " shape:= {}".format(data.shape))
         lobbies_and_their_data[game_mode['name']] = data
     return lobbies_and_their_data
 
