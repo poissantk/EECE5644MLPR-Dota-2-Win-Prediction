@@ -91,7 +91,7 @@ def hero_data(data_frame):
 def hero_win_rate(data_frame):
     path = Path(__file__).parent / "../data/heros.json"
     hero_types = json.load(open(path))
-    types = data_frame.iloc[:, 4:117].to_numpy() # col 3 but with zero index col 2
+    types = data_frame.iloc[:, 4:118].to_numpy() # col 3 but with zero index col 2
     win_or_lose = data_frame.iloc[:, 0].to_numpy()
     win_rate = {}
     list_win_rate = []
