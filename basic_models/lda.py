@@ -92,7 +92,6 @@ new_x_test = np.concatenate((x_test_no_heroes_test, transformed_hero_data_test[:
 new_y_test = y_test
 
 
-
 lda = LinearDiscriminantAnalysis()
 X_fit = lda.fit(new_x_train, new_y_train)  # Is a fitted estimator, not actual data to project
 z_train = lda.transform(new_x_train)
@@ -106,6 +105,9 @@ print(prob_of_error(test_preds, new_y_test))
 
 
 
+
+
+
 lda = LinearDiscriminantAnalysis()
 X_fit = lda.fit(x_train_no_heroes_train, new_y_train)  # Is a fitted estimator, not actual data to project
 z_train = lda.transform(x_train_no_heroes_train)
@@ -115,6 +117,9 @@ test_preds = lda.predict(x_test_no_heroes_test)
 
 print("\nTest Set Pr(Error)\nTrained on training set with no hero data")
 print(prob_of_error(test_preds, new_y_test))
+
+
+
 
 
 
@@ -148,6 +153,8 @@ print(prob_of_error(test_preds, y_test_solo))
 
 
 
+
+
 tournament_data = game_mode_split["Tournament"]
 tournament_data = np.reshape(tournament_data, (tournament_data.shape[0], tournament_data.shape[2]))
 y_train_tournament = tournament_data[:, 0]
@@ -167,6 +174,9 @@ test_preds = lda.predict(x_test_tournament)
 
 print("\nTest Set Pr(Error)\nTrained on training set with only tournament data")
 print(prob_of_error(test_preds, y_test_tournament))
+
+
+
 
 
 
@@ -194,3 +204,26 @@ test_preds = lda.predict(new_x_test)
 print("\nTest Set Pr(Error)\nTrained on score of heros with only tournament data")
 print(prob_of_error(test_preds, new_y_test))
 
+
+
+
+
+tournament_data = game_mode_split["Tournament"]
+tournament_data = np.reshape(tournament_data, (tournament_data.shape[0], tournament_data.shape[2]))
+y_train_tournament = tournament_data[:, 0]
+x_train_tournament = tournament_data[:, 4:]
+
+tournament_data_test = game_mode_split_test["Tournament"]
+tournament_data_test = np.reshape(tournament_data_test, (tournament_data_test.shape[0], tournament_data_test.shape[2]))
+y_test_tournament = tournament_data_test[:, 0]
+x_test_tournament = tournament_data_test[:, 4:]
+
+lda = LinearDiscriminantAnalysis()
+X_fit = lda.fit(x_train_tournament, y_train_tournament)  # Is a fitted estimator, not actual data to project
+z_train = lda.transform(x_train_tournament)
+z_test = lda.transform(x_test_tournament)
+w = X_fit.coef_[0]
+test_preds = lda.predict(x_test_tournament)
+
+print("\nTest Set Pr(Error)\nTrained on training set with only tournament data and oly character data matrix")
+print(prob_of_error(test_preds, y_test_tournament))
