@@ -104,10 +104,8 @@ def main():
     one_on_one_train = train_np_data_by_lobby['Solo Mid 1vs1']
     one_on_one_train = np.reshape(one_on_one_train, (one_on_one_train.shape[0], one_on_one_train.shape[2]))
 
-    print(one_on_one_train.shape)
-    print(train_tournament.shape)
+
     one_on_one_and_tournement = np.append(train_tournament, one_on_one_train, axis=0)
-    print(one_on_one_and_tournement.shape)
     X_one_on_one_and_tournn_train = one_on_one_and_tournement[:, 1:]
     y_one_on_one_and_tourn = one_on_one_and_tournement[:, 0]
     X_tourn_test = test_tournament[:, 1:]
@@ -166,12 +164,12 @@ def data_with_online_winrates():
     encoded_train_X = encode_with_winrate(X_train)
     encoded_test_X = encode_with_winrate(X_test)
 
+
     #pipe = make_pipeline(LogisticRegression())
     log_reg = LogisticRegression(max_iter=1000)
     log_reg.fit(encoded_train_X, y_train)
     predictions = log_reg.predict(encoded_test_X)
     print("Pr(error) converted 1s and -1s to winrate:=", prob_of_error(predictions, y_test))
-
 
 if __name__ == '__main__':
     main()

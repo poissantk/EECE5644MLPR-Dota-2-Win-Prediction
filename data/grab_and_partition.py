@@ -165,8 +165,43 @@ def prob_of_error(predictions, true_labels):
     return 1 - (correct_pred_count / len(true_labels))
 
 
+def hero_win_rate_2(data_frame):
+    path = Path(__file__).parent / "../data/heros.json"
+    hero_types = json.load(open(path))
+    games = data_frame.iloc[:, 4:].to_numpy() # col 3 but with zero index col 2
+    win_or_lose = data_frame.iloc[:, 0].to_numpy()
+    hero_wins = np.zeros(games.shape[1])
+    hero_losses = np.zeros(games.shape[1])
+
+    print(hero_wins.shape)
+    print(games.shape[1])
+    for game_index, row in enumerate(games):
+        if win_or_lose[game_index] == 1:
+            for row_index, i in enumerate(row):
+                if i == 1:
+                    hero_wins[row_index] +=1
+                elif i == -1:
+                    hero_losses[row_index] += 1
+        else:
+            for row_index, i in enumerate(row):
+                if i == -1:
+                    hero_wins[row_index] +=1
+                elif i == 1:
+                    hero_losses[row_index] += 1
+
+    for ident, wins, losses in zip(range(len(hero_wins)) ,hero_wins, hero_losses):
+        winrate = wins / (wins + losses)
+        hero_name = ""
+        for hero in hero_types:
+            print(ident)
+            print(hero['id'])
+            if hero['id'] == ident:
+                hero_name = hero['name']
+        print(hero_name + " winrate = {}".format(winrate))
+
 def main():
     dota_train_df, dota_test_df = get_data()
+    hero_win_rate_2(dota_test_df)
     X_train = dota_train_df.iloc[:, 1:].to_numpy()
     y_train = dota_train_df.iloc[:, 0].to_numpy()
     X_test = dota_test_df.iloc[:, 1:].to_numpy()
