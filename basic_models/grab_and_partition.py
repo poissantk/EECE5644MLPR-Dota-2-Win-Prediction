@@ -58,8 +58,8 @@ def split_data_by_lobby(data_frame):
         # data based on label location
         indices = np.argwhere(types == game_mode['id'])
         data = data_frame.to_numpy()[indices, :]
-        print(game_mode['name'] + " shape:= {}".format(data.shape))
         lobbies_and_their_data[game_mode['name']] = data
+        print(game_mode['name'] + " shape:= {}".format(data.shape))
     return lobbies_and_their_data
 
 def hero_data(data_frame):
@@ -95,8 +95,6 @@ def hero_win_rate(data_frame):
     win_or_lose = data_frame.iloc[:, 0].to_numpy()
     win_rate = {}
     list_win_rate = []
-    print(types.shape)
-    print(types[:, 0].shape)
 
     for hero in hero_types['heroes']:
         win = 0
@@ -109,49 +107,41 @@ def hero_win_rate(data_frame):
                 lose += 1
 
         if win + lose != 0:
-            print(hero['name'] + ":= {}".format(round((win / (win + lose)), 4)))
+            # print(hero['name'] + ":= {}".format(round((win / (win + lose)), 4)))
             win_rate[hero['name']] = round((win / (win + lose)), 4)
             list_win_rate.append(round((win / (win + lose)), 4))
         else:
-            print("AHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH {}".format(hero['name']))
+            # print("AHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH {}".format(hero['name']))
             win_rate[hero['name']] = 0
             list_win_rate.append(0)
 
     # from https://www.geeksforgeeks.org/python-sort-python-dictionaries-by-key-or-value/
     # print(sorted(win_rate.items(), key=lambda kv: (kv[1], kv[0])))
-    print(win_rate)
-    print(len(list_win_rate))
+    # print(win_rate)
+    # print(len(list_win_rate))
     return win_rate
 
 def transform_hero_data(data_frame, name_to_win_rate):
     path = Path(__file__).parent / "../data/heros.json"
     types = data_frame.iloc[:, 4:117].to_numpy() # col 3 but with zero index col 2
     transformed_hero_data = np.zeros(types.shape[0])
-    print(name_to_win_rate)
+    # print(name_to_win_rate)
     id_to_heros = {}
 
     hero_types = json.load(open(path))
     for hero in hero_types['heroes']:
         id_to_heros[hero['id']] = hero['name']
-    print(id_to_heros)
+    # print(id_to_heros)
 
     for sample_index in range(types.shape[0]):
         sample_hero_score = 0
-        if sample_index == 0:
-            print(types[sample_index])
         for hero_index in range(len(id_to_heros)):
             # no hero 24
             # hero index + 1 = hero id
             if types[sample_index, hero_index] == 1:
                 sample_hero_score += name_to_win_rate[id_to_heros[hero_index + 1]]
-                if sample_index == 0:
-                    print(hero_index)
-                    print(name_to_win_rate[id_to_heros[hero_index + 1]])
             elif types[sample_index, hero_index] == -1:
                 sample_hero_score = sample_hero_score - name_to_win_rate[id_to_heros[hero_index + 1]]
-                if sample_index == 0:
-                    print(hero_index)
-                    print(name_to_win_rate[id_to_heros[hero_index + 1]])
         transformed_hero_data[sample_index] = sample_hero_score
     
     return transformed_hero_data
@@ -169,6 +159,7 @@ def main():
     y_train = dota_train_df.iloc[:, 0].to_numpy()
     X_test = dota_test_df.iloc[:, 1:].to_numpy()
     y_test = dota_test_df.iloc[:, 0].to_numpy()
+
 
     print("Win amounts for training set")
     win_amounts(y_train)
@@ -198,8 +189,7 @@ def main():
     print(max(transformed_hero_data))
 
     print("\nSplitting data by game type")
-    lobby_df_dict = split_data_by_lobby(pd.concat([dota_train_df, dota_test_df]))
-    print(lobby_df_dict.keys())
+    split_data_by_lobby(pd.concat([dota_train_df, dota_test_df]))
 
 if __name__ == '__main__':
     main()

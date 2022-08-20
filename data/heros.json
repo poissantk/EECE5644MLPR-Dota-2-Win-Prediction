@@ -46,14 +46,14 @@
             "localized_name": "Mirana"
         },
         {
-            "name": "nevermore",
-            "id": 11,
-            "localized_name": "Shadow Fiend"
-        },
-        {
             "name": "morphling",
             "id": 10,
             "localized_name": "Morphling"
+        },
+        {
+            "name": "nevermore",
+            "id": 11,
+            "localized_name": "Shadow Fiend"
         },
         {
             "name": "phantom_lancer",
@@ -121,11 +121,6 @@
             "localized_name": "Lina"
         },
         {
-            "name": "lich",
-            "id": 31,
-            "localized_name": "Lich"
-        },
-        {
             "name": "lion",
             "id": 26,
             "localized_name": "Lion"
@@ -149,6 +144,11 @@
             "name": "witch_doctor",
             "id": 30,
             "localized_name": "Witch Doctor"
+        },
+        {
+            "name": "lich",
+            "id": 31,
+            "localized_name": "Lich"
         },
         {
             "name": "riki",
@@ -331,14 +331,14 @@
             "localized_name": "Spectre"
         },
         {
-            "name": "doom_bringer",
-            "id": 69,
-            "localized_name": "Doom"
-        },
-        {
             "name": "ancient_apparition",
             "id": 68,
             "localized_name": "Ancient Apparition"
+        },
+        {
+            "name": "doom_bringer",
+            "id": 69,
+            "localized_name": "Doom"
         },
         {
             "name": "ursa",
@@ -516,6 +516,11 @@
             "localized_name": "Legion Commander"
         },
         {
+            "name": "techies",
+            "id": 105,
+            "localized_name": "Techies"
+        },
+        {
             "name": "ember_spirit",
             "id": 106,
             "localized_name": "Ember Spirit"
@@ -539,11 +544,6 @@
             "name": "phoenix",
             "id": 110,
             "localized_name": "Phoenix"
-        },
-        {
-            "name": "techies",
-            "id": 105,
-            "localized_name": "Techies"
         },
         {
             "name": "oracle",
