@@ -59,5 +59,16 @@ def main():
 
     print("\nTest Set Pr(Error)\nTrained on full training set")
     print(prob_of_error(predictions, y_test))
+    from data.grab_and_partition import split_data_by_lobby
+
+    # ******************************* Play with data set *******************************
+
+    print("\nTrained on train Tournament | Predictions on test Tournament")
+    train_np_data_by_lobby = split_data_by_lobby(dota_train_df)
+    test_np_data_by_lobby = split_data_by_lobby(dota_test_df)
+    train_tournament = train_np_data_by_lobby['Tournament']
+    test_tournament = test_np_data_by_lobby['Tournament']
+
+
 if __name__ == '__main__':
     main()
