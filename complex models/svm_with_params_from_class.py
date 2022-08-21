@@ -1,9 +1,3 @@
-import math
-
-import matplotlib.pyplot as plt  # For general plotting
-import matplotlib.colors as mcol
-from sklearn_evaluation import plot
-
 import numpy as np
 from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import PolynomialFeatures, StandardScaler
@@ -67,27 +61,12 @@ def main():
     print("\nWin amounts for test set")
     win_amounts(y_test)
 
-    svc = svm.SVC()
-    c = np.linspace(10 ** -1, 1, 5)
-    c = [round(x, 5) for x in c]
-    gamma = np.linspace(10 ** -1, 1, 5)
-    gamma = [round(x, 5) for x in gamma]
-    # values rounded so plotting heat map works better
-    parameters = {'C': c, 'gamma': gamma, 'kernel': ['rbf']}
-    # print(np.linspace(10**-1, 1, 30))
-    clf = GridSearchCV(svc, parameters, cv=3)  # 10 fold cross validation
-    clf.fit(X_train_encoded, y_train)
-    print("BEST RESULTS")
-    print(clf.best_params_)
-    rbf_svc = make_pipeline(StandardScaler(),
-                            SVC(kernel='rbf', gamma=clf.best_params_['gamma'], C=clf.best_params_['C']))
+    rbf_svc = make_pipeline(StandardScaler(), SVC(kernel='rbf',  gamma=0.7, C=1.0))
     rbf_svc.fit(X_train_encoded, y_train)
 
     predictions_for_pipeline = rbf_svc.predict(X_test_encoded)
     print("alleged best values prob of Error", prob_of_error(predictions_for_pipeline, y_test))
 
-    plot.grid_search(clf.cv_results_, change=('C', 'gamma'))
-    plt.show()
 
 if __name__ == '__main__':
     main()

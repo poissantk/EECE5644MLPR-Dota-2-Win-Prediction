@@ -46,14 +46,6 @@ def main():
     print("\nWin amounts for test set")
     win_amounts(y_test)
 
-    # iloc accesses rows/columns by indexing
-    # Extracting data matrix X and target labels vector
-    dota_train_df, dota_test_df = get_data()
-    X_train = dota_train_df.iloc[:, 1:].to_numpy()
-    y_train = dota_train_df.iloc[:, 0].to_numpy()
-    X_test = dota_test_df.iloc[:, 1:].to_numpy()
-    y_test = dota_test_df.iloc[:, 0].to_numpy()
-
     #pipe = make_pipeline(LogisticRegression())
     mean_cv_scores = []
     alphas = np.geomspace(10**-4, 10**4, 100)
