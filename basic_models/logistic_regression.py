@@ -25,7 +25,7 @@ from sklearn.preprocessing import Normalizer
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 from sklearn.datasets import make_classification
 from sklearn.linear_model import LogisticRegression
-from data.grab_and_partition import get_data, win_amounts
+from data.grab_and_partition import get_data, win_amounts, get_metrics_on_results
 
 
 def prob_of_error(predictions, true_labels):
@@ -65,6 +65,8 @@ def main():
 
     print("\nTest Set Pr(Error)\nTrained on full training set")
     print(prob_of_error(predictions, y_test))
+    get_metrics_on_results(predictions, y_test)
+
     from data.grab_and_partition import split_data_by_lobby
 
     # ******************************* Play with data set *******************************
@@ -88,6 +90,7 @@ def main():
     log_reg.fit(X_tourn_train, y_tourn_train)
     tourn_predictions = log_reg.predict(X_tourn_test)
     print("Pr(error):=", prob_of_error(tourn_predictions, y_tourn_test))
+    get_metrics_on_results(tourn_predictions, y_tourn_test)
 
     # ******************************* Play with data set *******************************
 
@@ -116,6 +119,7 @@ def main():
     log_reg.fit(X_one_on_one_and_tournn_train, y_one_on_one_and_tourn)
     tourn_predictions = log_reg.predict(X_tourn_test)
     print("Pr(error):=", prob_of_error(tourn_predictions, y_tourn_test))
+    get_metrics_on_results(tourn_predictions, y_tourn_test)
 
 
 def data_with_online_winrates():
@@ -170,6 +174,7 @@ def data_with_online_winrates():
     log_reg.fit(encoded_train_X, y_train)
     predictions = log_reg.predict(encoded_test_X)
     print("Pr(error) converted 1s and -1s to winrate:=", prob_of_error(predictions, y_test))
+    get_metrics_on_results(predictions, y_test)
 
 if __name__ == '__main__':
     main()

@@ -38,7 +38,7 @@ def encode_with_winrate(X_np):
             wr.append(1.0)
 
     wr = np.array(wr)
-    return [row * wr for row in X_np]
+    return np.array([row * wr for row in X_np])
 
 
 

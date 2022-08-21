@@ -126,4 +126,4 @@ def data_with_online_winrates():
     """
 if __name__ == '__main__':
     main()
-    #data_with_online_winrates()
+    data_with_online_winrates()
