@@ -58,7 +58,17 @@ N_test = dota_test.shape[0]
 y_test = dota_test[:, 0]
 x_test = dota_test[:, 1:]
 
+game_mode_split = split_data_by_lobby(dota_train_df)
+tournament_data = game_mode_split["Tournament"]
+tournament_data = np.reshape(tournament_data, (tournament_data.shape[0], tournament_data.shape[2]))
+y_train_tournament = tournament_data[:, 0]
+x_train_tournament = tournament_data[:, 4:]
 
+game_mode_split_test = split_data_by_lobby(dota_test_df)
+tournament_data_test = game_mode_split_test["Tournament"]
+tournament_data_test = np.reshape(tournament_data_test, (tournament_data_test.shape[0], tournament_data_test.shape[2]))
+y_test_tournament = tournament_data_test[:, 0]
+x_test_tournament = tournament_data_test[:, 4:]
 
 
 
@@ -142,18 +152,18 @@ def neural_net(X, y, P):
 
 
 
-y_train_0_or_1 = np.zeros_like(y_train)
-for index in range(y_train.shape[0]):
-    if y_train[index] == 1:
+y_train_0_or_1 = np.zeros_like(y_train_tournament)
+for index in range(y_train_tournament.shape[0]):
+    if y_train_tournament[index] == 1:
         y_train_0_or_1[index] = 1
-    elif y_train[index] == -1:
+    elif y_train_tournament[index] == -1:
         y_train_0_or_1[index] = 0
 
-y_test_0_or_1 = np.zeros_like(y_test)
-for index in range(y_test.shape[0]):
-    if y_test[index] == 1:
+y_test_0_or_1 = np.zeros_like(y_test_tournament)
+for index in range(y_test_tournament.shape[0]):
+    if y_test_tournament[index] == 1:
         y_test_0_or_1[index] = 1
-    elif y_test[index] == -1:
+    elif y_test_tournament[index] == -1:
         y_test_0_or_1[index] = 0
 
 # Polynomial degrees ("hyperparameters") to evaluate 
@@ -181,9 +191,9 @@ for p_value in p_values:
     k = 0
     # NOTE that these subsets are of the TRAINING dataset
     # Imagine we don't have enough data available to afford another entirely separate validation set
-    for train_indices, valid_indices in kf.split(x_train):
+    for train_indices, valid_indices in kf.split(x_train_tournament):
         # Extract the training and validation sets from the K-fold split
-        X_train_k = x_train[train_indices]
+        X_train_k = x_train_tournament[train_indices]
         y_train_k = y_train_0_or_1[train_indices]
 
         # Make predictions on both the training 
@@ -215,9 +225,9 @@ print("The model selected to best fit the data without overfitting is: P={}".for
 
 
 
-_, model = neural_net(x_train, y_train_0_or_1, int(optimal_p))  
+_, model = neural_net(x_train_tournament, y_train_0_or_1, int(optimal_p))  
 
-X_test_tensor = torch.FloatTensor(x_test)
+X_test_tensor = torch.FloatTensor(x_test_tournament)
 
 y_test_pred = np.argmax(model(X_test_tensor).detach().numpy(), 1)
 
@@ -225,33 +235,3 @@ y_test_pred = np.argmax(model(X_test_tensor).detach().numpy(), 1)
 valid_prob_error = prob_of_error(y_test_pred, y_test_0_or_1)
 
 print("Valid prob error: {}".format(valid_prob_error))
-
-
-
-
-
-# y_train_pred_2, model_2 = neural_net(new_x_train, y_train_0_or_1, 50)
-# print("\nTraining Set Pr(Error)\nTrained on training set")
-# print(prob_of_error(y_train_pred_2, y_train_0_or_1))
-
-# X_test_tensor = torch.FloatTensor(new_x_test) 
-# y_test_pred = np.argmax(model_2(X_test_tensor).detach().numpy(), 1)
-# # Record MSE as well for this model and k-fold
-# valid_prob_error_2 = prob_of_error(y_test_pred, y_test_0_or_1)
-# print("\nTest Set Pr(Error)\nTrained on training set")
-# print(valid_prob_error_2)
-
-
-
-# y_train_pred, model = neural_net(x_train_no_heroes_train, y_train_0_or_1, 50)
-# print("\nTraining Set Pr(Error)\nTrained on training set")
-# print(prob_of_error(y_train_pred, y_train_0_or_1))
-
-# X_test_tensor = torch.FloatTensor(x_test_no_heroes_test) 
-# y_test_pred = np.argmax(model(X_test_tensor).detach().numpy(), 1)
-# # Record MSE as well for this model and k-fold
-# valid_prob_error_3 = prob_of_error(y_test_pred, y_test_0_or_1)
-# print("\nTest Set Pr(Error)\nTrained on training set")
-# print(valid_prob_error_3)
-
-

@@ -225,5 +225,5 @@ z_test = lda.transform(x_test_tournament)
 w = X_fit.coef_[0]
 test_preds = lda.predict(x_test_tournament)
 
-print("\nTest Set Pr(Error)\nTrained on training set with only tournament data and oly character data matrix")
+print("\nTest Set Pr(Error)\nTrained on training set with only tournament data and only character data matrix")
 print(prob_of_error(test_preds, y_test_tournament))
