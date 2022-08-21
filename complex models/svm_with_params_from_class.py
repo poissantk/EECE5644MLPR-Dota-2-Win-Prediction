@@ -61,12 +61,19 @@ def main():
     print("\nWin amounts for test set")
     win_amounts(y_test)
 
-    rbf_svc = make_pipeline(StandardScaler(), SVC(kernel='rbf',  gamma=0.7, C=1.0))
+    rbf_svc = make_pipeline(StandardScaler(), SVC(kernel='rbf',  gamma=10, C=10))
     rbf_svc.fit(X_train_encoded, y_train)
 
     predictions_for_pipeline = rbf_svc.predict(X_test_encoded)
     print("alleged best values prob of Error", prob_of_error(predictions_for_pipeline, y_test))
 
+    """
+    rbf_svc = make_pipeline(StandardScaler(), SVC(kernel='rbf',  gamma=0.7, C=1.0))
+    alleged best values prob of Error 0.4655138915873325
+    
+    rbf_svc = make_pipeline(StandardScaler(), SVC(kernel='rbf',  gamma=0.13103, C=0.1931))
+    alleged best values prob of Error 0.4655138915873325
+    """
 
 if __name__ == '__main__':
     main()

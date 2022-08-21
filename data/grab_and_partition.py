@@ -4,6 +4,7 @@ import pandas as pd
 import zipfile
 from pathlib import Path
 import numpy as np
+from sklearn.metrics import f1_score, precision_score, recall_score
 import matplotlib.pyplot as plt # For general plotting
 # ValueError: Multiple files found in ZIP file. Only one file per ZIP: ['dota2Train.csv', 'dota2Test.csv']
 """
@@ -164,6 +165,13 @@ def prob_of_error(predictions, true_labels):
         correct_pred_count += len(np.argwhere((predictions == x) & (true_labels == x)))
     return 1 - (correct_pred_count / len(true_labels))
 
+def get_metrics_on_results(predictions, true_values):
+    f1 = f1_score(true_values, predictions)
+    recall = recall_score(true_values, predictions)
+    precision = precision_score(true_values, predictions)
+    print("f1 score:= {}".format(f1))
+    print("recall score:= {}".format(recall))
+    print("precision score:= {}".format(precision))
 
 def hero_win_rate_2(data_frame):
     path = Path(__file__).parent / "../data/heros.json"
