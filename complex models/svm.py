@@ -75,7 +75,7 @@ def main():
     # values rounded so plotting heat map works better
     parameters = {'C': c, 'gamma': gamma, 'kernel': ['rbf']}
     # print(np.linspace(10**-1, 1, 30))
-    clf = GridSearchCV(svc, parameters, cv=3)  # 10 fold cross validation
+    clf = GridSearchCV(svc, parameters, cv=2)  # 10 fold cross validation
     clf.fit(X_train_encoded, y_train)
     print("BEST RESULTS")
     print(clf.best_params_)

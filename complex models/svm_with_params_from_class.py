@@ -8,7 +8,7 @@ import json
 from pathlib import Path
 import csv
 
-from data.grab_and_partition import win_amounts, get_data, prob_of_error
+from data.grab_and_partition import win_amounts, get_data, prob_of_error, get_metrics_on_results
 
 
 def encode_with_winrate(X_np):
@@ -61,11 +61,12 @@ def main():
     print("\nWin amounts for test set")
     win_amounts(y_test)
 
-    rbf_svc = make_pipeline(StandardScaler(), SVC(kernel='rbf',  gamma=10, C=10))
+    rbf_svc = make_pipeline(StandardScaler(), SVC(kernel='rbf',  gamma=0.13103, C=0.1931))
     rbf_svc.fit(X_train_encoded, y_train)
 
     predictions_for_pipeline = rbf_svc.predict(X_test_encoded)
     print("alleged best values prob of Error", prob_of_error(predictions_for_pipeline, y_test))
+    get_metrics_on_results(predictions_for_pipeline, y_test)
 
     """
     rbf_svc = make_pipeline(StandardScaler(), SVC(kernel='rbf',  gamma=0.7, C=1.0))
