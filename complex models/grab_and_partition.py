@@ -92,7 +92,7 @@ def hero_data(data_frame):
                 num_on_team_1 += 1
             elif element == -1:
                 num_on_team_neg1 +=1
-        # print(hero['name'] + ":= {}".format(num_on_team_1 + num_on_team_neg1) + "           {}%".format(round(((num_on_team_1 + num_on_team_neg1) / 10282.56), 2)))
+        print(hero['name'] + ":= {}".format(num_on_team_1 + num_on_team_neg1) + "           {}%".format(round(((num_on_team_1 + num_on_team_neg1) / 10282.56), 2)))
         total += (num_on_team_1 + num_on_team_neg1)
     # print("total number of games:= {}".format(len(types)))
     # print(total) = 1028256
@@ -130,6 +130,45 @@ def hero_win_rate(data_frame):
     # print(win_rate)
     # print(len(list_win_rate))
     return win_rate
+
+def hero_win_rate_2(data_frame):
+    path = Path(__file__).parent / "../data/heros.json"
+    hero_types = json.load(open(path))
+    games = data_frame.iloc[:, 4:].to_numpy() # col 3 but with zero index col 2
+    win_or_lose = data_frame.iloc[:, 0].to_numpy()
+    hero_wins = np.zeros(games.shape[1])
+    hero_losses = np.zeros(games.shape[1])
+
+    heroes_and_their_winrate = {}
+    for game_index, row in enumerate(games):
+        if win_or_lose[game_index] == 1:
+            for row_index, i in enumerate(row):
+                if i == 1:
+                    hero_wins[row_index] +=1
+                elif i == -1:
+                    hero_losses[row_index] += 1
+        else:
+            for row_index, i in enumerate(row):
+                if i == -1:
+                    hero_wins[row_index] +=1
+                elif i == 1:
+                    hero_losses[row_index] += 1
+
+    for ident, wins, losses in zip(range(1, len(hero_wins)) ,hero_wins, hero_losses):
+
+        if wins + losses != 0: #24 is missing from data
+            winrate = float(wins) / (float(wins) + float(losses))
+            hero_name = ""
+            for hero in hero_types['heroes']:
+                if int(hero['id']) == ident:
+                    hero_name = hero['name']
+            heroes_and_their_winrate[hero_name] = winrate
+        else:
+            hero_name = ""
+            for hero in hero_types['heroes']:
+                if int(hero['id']) == ident:
+                    hero_name = hero['name']
+    return heroes_and_their_winrate
 
 def transform_hero_data(data_frame, name_to_win_rate):
     path = Path(__file__).parent / "../data/heros.json"

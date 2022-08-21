@@ -8,7 +8,8 @@ import matplotlib.pyplot as plt # For general plotting
 import numpy as np
 
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
-from grab_and_partition import hero_win_rate, transform_hero_data, split_data_by_lobby, get_metrics_on_results
+from grab_and_partition import hero_win_rate_2
+from grab_and_partition import transform_hero_data, split_data_by_lobby, get_metrics_on_results
 
 import torch
 import torch.nn as nn
@@ -77,7 +78,7 @@ get_metrics_on_results(test_preds, y_test)
 
 x_train_no_heroes_train = x_train[:, 0:3]
 # print(x_train_no_heroes)
-dict_train = hero_win_rate(dota_train_df)
+dict_train = hero_win_rate_2(dota_train_df)
 transformed_hero_data_train = transform_hero_data(dota_train_df, dict_train)
 new_x_train = np.concatenate((x_train_no_heroes_train, transformed_hero_data_train[:, None]), axis = 1)
 # print(new_x_train)
@@ -86,7 +87,7 @@ new_y_train = y_train
 
 x_test_no_heroes_test = x_test[:, 0:3]
 # print(x_test_no_heroes)
-dict_test = hero_win_rate(dota_test_df)
+dict_test = hero_win_rate_2(dota_test_df)
 transformed_hero_data_test = transform_hero_data(dota_test_df, dict_test)
 new_x_test = np.concatenate((x_test_no_heroes_test, transformed_hero_data_test[:, None]), axis = 1)
 # print(new_x_test)
@@ -229,3 +230,34 @@ test_preds = lda.predict(x_test_tournament)
 print("\nTest Set Pr(Error)\nTrained on training set with only tournament data and only character data matrix")
 print(prob_of_error(test_preds, y_test_tournament))
 get_metrics_on_results(test_preds, y_test_tournament)
+
+
+
+x_train_no_heroes_train = x_train[:, 0:3]
+# print(x_train_no_heroes)
+dict_train = hero_win_rate_2(dota_train_df)
+transformed_hero_data_train = transform_hero_data(dota_train_df, dict_train)
+new_x_train = transformed_hero_data_train[:, None]
+# print(new_x_train)
+new_y_train = y_train
+
+
+x_test_no_heroes_test = x_test[:, 0:3]
+# print(x_test_no_heroes)
+dict_test = hero_win_rate_2(dota_test_df)
+transformed_hero_data_test = transform_hero_data(dota_test_df, dict_test)
+new_x_test = transformed_hero_data_test[:, None]
+# print(new_x_test)
+new_y_test = y_test
+
+
+lda = LinearDiscriminantAnalysis()
+X_fit = lda.fit(new_x_train, new_y_train)  # Is a fitted estimator, not actual data to project
+z_train = lda.transform(new_x_train)
+z_test = lda.transform(new_x_test)
+w = X_fit.coef_[0]
+test_preds = lda.predict(new_x_test)
+
+print("\nTest Set Pr(Error)\nTrained on only score of heros")
+print(prob_of_error(test_preds, new_y_test))
+get_metrics_on_results(test_preds, new_y_test)

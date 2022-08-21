@@ -237,10 +237,10 @@ def main():
     hero_data(pd.concat([dota_train_df, dota_test_df]))
 
     print("\nTotal heroes win rate train")
-    dict = hero_win_rate(dota_train_df)
+    dict_2 = hero_win_rate_2(dota_train_df)
 
     print("\nTransforming hero data")
-    transformed_hero_data = transform_hero_data(dota_test_df, dict)
+    transformed_hero_data = transform_hero_data(dota_test_df, dict_2)
     print(transformed_hero_data)
 
     print(min(transformed_hero_data))
