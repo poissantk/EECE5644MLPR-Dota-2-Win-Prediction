@@ -59,7 +59,7 @@ def split_data_by_lobby(data_frame):
         indices = np.argwhere(types == game_mode['id'])
         data = data_frame.to_numpy()[indices, :]
         lobbies_and_their_data[game_mode['name']] = data
-        print(game_mode['name'] + " shape:= {}".format(data.shape))
+        # print(game_mode['name'] + " shape:= {}".format(data.shape))
     return lobbies_and_their_data
 
 def hero_data(data_frame):
@@ -69,8 +69,8 @@ def hero_data(data_frame):
     path = Path(__file__).parent / "../data/heros.json"
     hero_types = json.load(open(path))
     types = data_frame.iloc[:, 4:117].to_numpy() # col 5 but with zero index col 4
-    print(types.shape)
-    print(types[:, 0].shape)
+    # print(types.shape)
+    # print(types[:, 0].shape)
     total = 0
 
     for hero in hero_types['heroes']:
@@ -82,7 +82,7 @@ def hero_data(data_frame):
                 num_on_team_1 += 1
             elif element == -1:
                 num_on_team_neg1 +=1
-        print(hero['name'] + ":= {}".format(num_on_team_1 + num_on_team_neg1) + "           {}%".format(round(((num_on_team_1 + num_on_team_neg1) / 10282.56), 2)))
+        # print(hero['name'] + ":= {}".format(num_on_team_1 + num_on_team_neg1) + "           {}%".format(round(((num_on_team_1 + num_on_team_neg1) / 10282.56), 2)))
         total += (num_on_team_1 + num_on_team_neg1)
     # print("total number of games:= {}".format(len(types)))
     # print(total) = 1028256
