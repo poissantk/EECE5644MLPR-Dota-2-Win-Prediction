@@ -5,6 +5,8 @@ import zipfile
 from pathlib import Path
 import numpy as np
 import matplotlib.pyplot as plt # For general plotting
+from sklearn.metrics import f1_score, precision_score, recall_score
+
 # ValueError: Multiple files found in ZIP file. Only one file per ZIP: ['dota2Train.csv', 'dota2Test.csv']
 """
 Each row of the dataset is a single game with the following features (in the order in the vector):
@@ -120,6 +122,14 @@ def hero_win_rate(data_frame):
     # print(win_rate)
     # print(len(list_win_rate))
     return win_rate
+
+def get_metrics_on_results(predictions, true_values):
+    f1 = f1_score(true_values, predictions)
+    recall = recall_score(true_values, predictions)
+    precision = precision_score(true_values, predictions)
+    print("f1 score:= {}".format(f1))
+    print("recall score:= {}".format(recall))
+    print("precision score:= {}".format(precision))
 
 def transform_hero_data(data_frame, name_to_win_rate):
     path = Path(__file__).parent / "../data/heros.json"

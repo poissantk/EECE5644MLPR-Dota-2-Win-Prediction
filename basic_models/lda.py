@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt # For general plotting
 import numpy as np
 
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
-from grab_and_partition import hero_win_rate, transform_hero_data, split_data_by_lobby
+from grab_and_partition import hero_win_rate, transform_hero_data, split_data_by_lobby, get_metrics_on_results
 
 import torch
 import torch.nn as nn
@@ -69,6 +69,7 @@ def prob_of_error(predictions, true_labels):
 
 print("\nTest Set Pr(Error)\nTrained on full training set")
 print(prob_of_error(test_preds, y_test))
+get_metrics_on_results(test_preds, y_test)
 
 
 
@@ -101,7 +102,7 @@ test_preds = lda.predict(new_x_test)
 
 print("\nTest Set Pr(Error)\nTrained on score of heros")
 print(prob_of_error(test_preds, new_y_test))
-
+get_metrics_on_results(test_preds, new_y_test)
 
 
 
@@ -117,7 +118,7 @@ test_preds = lda.predict(x_test_no_heroes_test)
 
 print("\nTest Set Pr(Error)\nTrained on training set with no hero data")
 print(prob_of_error(test_preds, new_y_test))
-
+get_metrics_on_results(test_preds, new_y_test)
 
 
 
@@ -148,7 +149,7 @@ test_preds = lda.predict(x_test_solo)
 
 print("\nTest Set Pr(Error)\nTrained on training set with only solo data")
 print(prob_of_error(test_preds, y_test_solo))
-
+get_metrics_on_results(test_preds, y_test_solo)
 
 
 
@@ -174,7 +175,7 @@ test_preds = lda.predict(x_test_tournament)
 
 print("\nTest Set Pr(Error)\nTrained on training set with only tournament data")
 print(prob_of_error(test_preds, y_test_tournament))
-
+get_metrics_on_results(test_preds, y_test_tournament)
 
 
 
@@ -203,7 +204,7 @@ test_preds = lda.predict(new_x_test)
 
 print("\nTest Set Pr(Error)\nTrained on score of heros with only tournament data")
 print(prob_of_error(test_preds, new_y_test))
-
+get_metrics_on_results(test_preds, new_y_test)
 
 
 
@@ -227,3 +228,4 @@ test_preds = lda.predict(x_test_tournament)
 
 print("\nTest Set Pr(Error)\nTrained on training set with only tournament data and only character data matrix")
 print(prob_of_error(test_preds, y_test_tournament))
+get_metrics_on_results(test_preds, y_test_tournament)
