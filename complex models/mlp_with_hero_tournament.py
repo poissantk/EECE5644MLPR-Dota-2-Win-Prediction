@@ -3,24 +3,17 @@ import zipfile
 from pathlib import Path
 
 
-from sys import displayhook, float_info
 import matplotlib.pyplot as plt # For general plotting
 
 import numpy as np
-from pandas import array
 
-from scipy.stats import multivariate_normal # MVN not univariate
-from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay, roc_curve
-from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
-from grab_and_partition import hero_win_rate, transform_hero_data, split_data_by_lobby
+from grab_and_partition import hero_win_rate_2, transform_hero_data, split_data_by_lobby, get_metrics_on_results
 from sklearn.model_selection import KFold # Important new include
 
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-# Utility to visualize PyTorch network and shapes
-from torchsummary import summary
 
 
 np.set_printoptions(suppress=True)
@@ -59,7 +52,7 @@ y_test = dota_test[:, 0]
 x_test = dota_test[:, 1:]
 
 x_train_no_heroes_train = x_train[:, 0:3]
-dict_train = hero_win_rate(dota_train_df)
+dict_train = hero_win_rate_2(dota_train_df)
 transformed_hero_data_train = transform_hero_data(dota_train_df, dict_train)
 new_x_train = np.concatenate((x_train_no_heroes_train, transformed_hero_data_train[:, None]), axis = 1)
 transformed_hero_data_train_df = pd.DataFrame(np.hstack((np.reshape(y_train, (y_train.shape[0], 1)), new_x_train))) # make it into a dataframe
@@ -75,7 +68,7 @@ new_y_train = y_train_tournament
 
 
 x_test_no_heroes_test = x_test[:, 0:3]
-dict_test = hero_win_rate(dota_test_df)
+dict_test = hero_win_rate_2(dota_test_df)
 transformed_hero_data_test = transform_hero_data(dota_test_df, dict_test)
 new_x_test = np.concatenate((x_test_no_heroes_test, transformed_hero_data_test[:, None]), axis = 1)
 transformed_hero_data_test_df = pd.DataFrame(np.hstack((np.reshape(y_test, (y_test.shape[0], 1)), new_x_test))) # make it into a dataframe
@@ -255,4 +248,6 @@ y_test_pred = np.argmax(model(X_test_tensor).detach().numpy(), 1)
 # Record MSE as well for this model and k-fold
 valid_prob_error = prob_of_error(y_test_pred, y_test_0_or_1)
 
+print("mlp_with_hero_tournament")
 print("Valid prob error: {}".format(valid_prob_error))
+get_metrics_on_results(y_test_pred, y_test_0_or_1)

@@ -1,26 +1,20 @@
+from webbrowser import get
 import pandas as pd
 import zipfile
 from pathlib import Path
 
-
-from sys import displayhook, float_info
 import matplotlib.pyplot as plt # For general plotting
 
 import numpy as np
-from pandas import array
 
-from scipy.stats import multivariate_normal # MVN not univariate
-from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay, roc_curve
-from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
-from grab_and_partition import hero_win_rate, transform_hero_data, split_data_by_lobby
 from sklearn.model_selection import KFold # Important new include
 
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-# Utility to visualize PyTorch network and shapes
-from torchsummary import summary
+from grab_and_partition import get_metrics_on_results
+
 
 
 np.set_printoptions(suppress=True)
@@ -224,6 +218,7 @@ y_test_pred = np.argmax(model(X_test_tensor).detach().numpy(), 1)
 # Record MSE as well for this model and k-fold
 valid_prob_error = prob_of_error(y_test_pred, y_test_0_or_1)
 
+print("mlp")
 print("Valid prob error: {}".format(valid_prob_error))
-
+get_metrics_on_results(y_test_pred, y_test_0_or_1)
 

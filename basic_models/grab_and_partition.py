@@ -5,6 +5,8 @@ import zipfile
 from pathlib import Path
 import numpy as np
 import matplotlib.pyplot as plt # For general plotting
+from sklearn.metrics import f1_score, precision_score, recall_score
+
 # ValueError: Multiple files found in ZIP file. Only one file per ZIP: ['dota2Train.csv', 'dota2Test.csv']
 """
 Each row of the dataset is a single game with the following features (in the order in the vector):
@@ -120,6 +122,53 @@ def hero_win_rate(data_frame):
     # print(win_rate)
     # print(len(list_win_rate))
     return win_rate
+
+def hero_win_rate_2(data_frame):
+    path = Path(__file__).parent / "../data/heros.json"
+    hero_types = json.load(open(path))
+    games = data_frame.iloc[:, 4:].to_numpy() # col 3 but with zero index col 2
+    win_or_lose = data_frame.iloc[:, 0].to_numpy()
+    hero_wins = np.zeros(games.shape[1])
+    hero_losses = np.zeros(games.shape[1])
+
+    heroes_and_their_winrate = {}
+    for game_index, row in enumerate(games):
+        if win_or_lose[game_index] == 1:
+            for row_index, i in enumerate(row):
+                if i == 1:
+                    hero_wins[row_index] +=1
+                elif i == -1:
+                    hero_losses[row_index] += 1
+        else:
+            for row_index, i in enumerate(row):
+                if i == -1:
+                    hero_wins[row_index] +=1
+                elif i == 1:
+                    hero_losses[row_index] += 1
+
+    for ident, wins, losses in zip(range(1, len(hero_wins)) ,hero_wins, hero_losses):
+
+        if wins + losses != 0: #24 is missing from data
+            winrate = float(wins) / (float(wins) + float(losses))
+            hero_name = ""
+            for hero in hero_types['heroes']:
+                if int(hero['id']) == ident:
+                    hero_name = hero['name']
+            heroes_and_their_winrate[hero_name] = winrate
+        else:
+            hero_name = ""
+            for hero in hero_types['heroes']:
+                if int(hero['id']) == ident:
+                    hero_name = hero['name']
+    return heroes_and_their_winrate
+
+def get_metrics_on_results(predictions, true_values):
+    f1 = f1_score(true_values, predictions)
+    recall = recall_score(true_values, predictions)
+    precision = precision_score(true_values, predictions)
+    print("f1 score:= {}".format(f1))
+    print("recall score:= {}".format(recall))
+    print("precision score:= {}".format(precision))
 
 def transform_hero_data(data_frame, name_to_win_rate):
     path = Path(__file__).parent / "../data/heros.json"
