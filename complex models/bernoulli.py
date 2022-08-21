@@ -8,7 +8,7 @@ from scipy.stats import multivariate_normal as mvn
 from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import PolynomialFeatures, StandardScaler
 from sklearn.model_selection import KFold
-from sklearn.svm import SVC, LinearSVC
+from sklearn.model_selection import cross_val_score
 import csv
 
 """
@@ -22,11 +22,10 @@ np.random.seed(7)
 from sklearn.pipeline import make_pipeline
 from sklearn.feature_selection import VarianceThreshold
 from sklearn.preprocessing import Normalizer
-from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
+#from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 from sklearn.datasets import make_classification
-from sklearn.linear_model import LogisticRegression
 from data.grab_and_partition import get_data, win_amounts
-
+from sklearn.naive_bayes import BernoulliNB, CategoricalNB
 
 def prob_of_error(predictions, true_labels):
     correct_pred_count = 0
@@ -47,24 +46,20 @@ def main():
     print("\nWin amounts for test set")
     win_amounts(y_test)
 
-    # iloc accesses rows/columns by indexing
-    # Extracting data matrix X and target labels vector
-    dota_train_df, dota_test_df = get_data()
-    X_train = dota_train_df.iloc[:, 1:].to_numpy()
-    y_train = dota_train_df.iloc[:, 0].to_numpy()
-    X_test = dota_test_df.iloc[:, 1:].to_numpy()
-    y_test = dota_test_df.iloc[:, 0].to_numpy()
-
     #pipe = make_pipeline(LogisticRegression())
-    log_reg = LogisticRegression(max_iter=1000)
-    log_reg.fit(X_train, y_train)
-    predictions = log_reg.predict(X_test)
-
-
-
-
+    mean_cv_scores = []
+    alphas = np.geomspace(10**-4, 10**4, 100)
+    for a in alphas:
+        mean_cv_scores.append(np.mean(cross_val_score(BernoulliNB(alpha=a), cv=10, X=X_train, y=y_train)))
+    optimal_alpha = alphas[np.argmax(mean_cv_scores)]
+    nb_bern = BernoulliNB(alpha=optimal_alpha)
+    nb_bern.fit(X_train, y_train)
+    predictions = nb_bern.predict(X_test)
     print("\nTest Set Pr(Error)\nTrained on full training set")
+    print("Optimal alpha:= {}".format(optimal_alpha))
     print(prob_of_error(predictions, y_test))
+
+
     from data.grab_and_partition import split_data_by_lobby
 
     # ******************************* Play with data set *******************************
@@ -83,11 +78,19 @@ def main():
     X_tourn_test = test_tournament[:, 1:]
     y_tourn_test = test_tournament[:, 0]
 
+    mean_cv_scores = []
+    alphas = np.geomspace(10**-4, 10**4, 100)
+    for a in alphas:
+        mean_cv_scores.append(np.mean(cross_val_score(BernoulliNB(alpha=a), cv=10, X=X_tourn_train, y=y_tourn_train)))
+    optimal_alpha = alphas[np.argmax(mean_cv_scores)]
+    nb_bern = BernoulliNB(alpha=optimal_alpha)
+    nb_bern.fit(X_tourn_train, y_tourn_train)
+    tourn_predictions = nb_bern.predict(X_tourn_test)
+    print("Tournament Test Set Pr(Error)\nTrained on full tournament training set")
+    print("Optimal alpha:= {}".format(optimal_alpha))
+    print(prob_of_error(tourn_predictions, y_tourn_test))
 
-    log_reg = LogisticRegression(max_iter=1000)
-    log_reg.fit(X_tourn_train, y_tourn_train)
-    tourn_predictions = log_reg.predict(X_tourn_test)
-    print("Pr(error):=", prob_of_error(tourn_predictions, y_tourn_test))
+
 
     # ******************************* Play with data set *******************************
 
@@ -110,12 +113,20 @@ def main():
     y_one_on_one_and_tourn = one_on_one_and_tournement[:, 0]
     X_tourn_test = test_tournament[:, 1:]
     y_tourn_test = test_tournament[:, 0]
+    mean_cv_scores = []
+    alphas = np.geomspace(10**-4, 10**4, 100)
+    for a in alphas:
+        mean_cv_scores.append(np.mean(cross_val_score(BernoulliNB(alpha=a), cv=10, X=X_one_on_one_and_tournn_train,
+                                                      y=y_one_on_one_and_tourn)))
+    optimal_alpha = alphas[np.argmax(mean_cv_scores)]
+    nb_bern = BernoulliNB(alpha=optimal_alpha)
+    nb_bern.fit(X_one_on_one_and_tournn_train, y_one_on_one_and_tourn)
+    tourn_onevone_predictions = nb_bern.predict(X_tourn_test)
+    print("Tournament Test Set Pr(Error)\nTrained on full tournament training set with 1v1 training set")
+    print("Optimal alpha:= {}".format(optimal_alpha))
+    print(prob_of_error(tourn_onevone_predictions, y_tourn_test))
 
 
-    log_reg = LogisticRegression(max_iter=1000)
-    log_reg.fit(X_one_on_one_and_tournn_train, y_one_on_one_and_tourn)
-    tourn_predictions = log_reg.predict(X_tourn_test)
-    print("Pr(error):=", prob_of_error(tourn_predictions, y_tourn_test))
 
 
 def data_with_online_winrates():
@@ -125,11 +136,6 @@ def data_with_online_winrates():
     y_train = dota_train_df.iloc[:, 0].to_numpy()
     X_test = dota_test_df.iloc[:, 1:].to_numpy()
     y_test = dota_test_df.iloc[:, 0].to_numpy()
-
-    print("Win amounts for training set")
-    win_amounts(y_train)
-    print("\nWin amounts for test set")
-    win_amounts(y_test)
 
     def encode_with_winrate(X_np):
 
@@ -165,11 +171,18 @@ def data_with_online_winrates():
     encoded_test_X = encode_with_winrate(X_test)
 
 
-    #pipe = make_pipeline(LogisticRegression())
-    log_reg = LogisticRegression(max_iter=1000)
-    log_reg.fit(encoded_train_X, y_train)
-    predictions = log_reg.predict(encoded_test_X)
+    mean_cv_scores = []
+    alphas = np.geomspace(10**-4, 10**4, 100)
+    for a in alphas:
+        mean_cv_scores.append(np.mean(cross_val_score(BernoulliNB(alpha=a), cv=10, X=encoded_train_X, y=y_train)))
+    optimal_alpha = alphas[np.argmax(mean_cv_scores)]
+    nb_bern = BernoulliNB(alpha=optimal_alpha)
+    nb_bern.fit(encoded_train_X, y_train)
+    predictions = nb_bern.predict(encoded_test_X)
+    print("\nEncoded Test Set Pr(Error)\nTrained on full encoded training set")
+    print("Optimal alpha:= {}".format(optimal_alpha))
     print("Pr(error) converted 1s and -1s to winrate:=", prob_of_error(predictions, y_test))
+
 
 if __name__ == '__main__':
     main()
