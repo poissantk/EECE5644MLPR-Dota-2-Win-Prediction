@@ -72,8 +72,7 @@ def main():
     rbf_svc = make_pipeline(StandardScaler(), SVC(kernel='rbf',  gamma=0.7, C=1.0))
     alleged best values prob of Error 0.4655138915873325
     
-    rbf_svc = make_pipeline(StandardScaler(), SVC(kernel='rbf',  gamma=0.13103, C=0.1931))
-    alleged best values prob of Error 0.4655138915873325
+
     """
 
 if __name__ == '__main__':
