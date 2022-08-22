@@ -8,6 +8,7 @@ import matplotlib.pyplot as plt # For general plotting
 import numpy as np
 
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
+from sklearn.metrics import ConfusionMatrixDisplay
 from grab_and_partition import hero_win_rate_2
 from grab_and_partition import transform_hero_data, split_data_by_lobby, get_metrics_on_results
 
@@ -104,6 +105,11 @@ test_preds = lda.predict(new_x_test)
 print("\nTest Set Pr(Error)\nTrained on score of heros")
 print(prob_of_error(test_preds, new_y_test))
 get_metrics_on_results(test_preds, new_y_test)
+
+conf_display = ConfusionMatrixDisplay.from_predictions(test_preds, new_y_test, display_labels=['-1', '1'], colorbar=False)
+plt.ylabel('Predicted Labels')
+plt.xlabel('True Labels')
+plt.show() 
 
 
 

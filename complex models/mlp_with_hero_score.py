@@ -9,6 +9,7 @@ import numpy as np
 
 from grab_and_partition import hero_win_rate_2, transform_hero_data, split_data_by_lobby, get_metrics_on_results
 from sklearn.model_selection import KFold # Important new include
+from sklearn.metrics import ConfusionMatrixDisplay
 
 import torch
 import torch.nn as nn
@@ -236,3 +237,8 @@ valid_prob_error = prob_of_error(y_test_pred, y_test_0_or_1)
 print("mlp_with_hero_socre")
 print("Valid prob error: {}".format(valid_prob_error))
 get_metrics_on_results(y_test_pred, y_test_0_or_1)
+
+conf_display = ConfusionMatrixDisplay.from_predictions(y_test_pred, y_test_0_or_1, display_labels=['-1', '1'], colorbar=False)
+plt.ylabel('Predicted Labels')
+plt.xlabel('True Labels')
+plt.show() 
