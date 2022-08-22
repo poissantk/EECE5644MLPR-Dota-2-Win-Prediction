@@ -44,7 +44,7 @@ def encode_with_winrate(X_np):
             wr.append(1.0)
 
     wr = np.array(wr)
-    return [row * wr for row in X_np]
+    return np.array([row * wr for row in X_np])
 
 
 
@@ -68,14 +68,14 @@ def main():
     win_amounts(y_test)
 
     svc = svm.SVC()
-    c = np.linspace(10 ** -1, 1, 5)
+    c = np.linspace(.01, 1, 4)
     c = [round(x, 5) for x in c]
-    gamma = np.linspace(10 ** -1, 1, 5)
+    gamma = np.linspace(0.01, 1, 4)
     gamma = [round(x, 5) for x in gamma]
     # values rounded so plotting heat map works better
     parameters = {'C': c, 'gamma': gamma, 'kernel': ['rbf']}
     # print(np.linspace(10**-1, 1, 30))
-    clf = GridSearchCV(svc, parameters, cv=3)  # 10 fold cross validation
+    clf = GridSearchCV(svc, parameters, cv=2)  # 10 fold cross validation
     clf.fit(X_train_encoded, y_train)
     print("BEST RESULTS")
     print(clf.best_params_)

@@ -24,8 +24,8 @@ from sklearn.feature_selection import VarianceThreshold
 from sklearn.preprocessing import Normalizer
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 from sklearn.datasets import make_classification
-from sklearn.linear_model import LogisticRegression
-from data.grab_and_partition import get_data, win_amounts
+from sklearn.linear_model import LogisticRegressionCV
+from data.grab_and_partition import get_data, win_amounts, get_metrics_on_results
 
 
 def prob_of_error(predictions, true_labels):
@@ -56,8 +56,10 @@ def main():
     y_test = dota_test_df.iloc[:, 0].to_numpy()
 
     #pipe = make_pipeline(LogisticRegression())
-    log_reg = LogisticRegression(max_iter=1000)
+    log_reg = LogisticRegressionCV(Cs=50, cv=3, max_iter=500)
+
     log_reg.fit(X_train, y_train)
+    print(log_reg.C_)
     predictions = log_reg.predict(X_test)
 
 
@@ -65,6 +67,8 @@ def main():
 
     print("\nTest Set Pr(Error)\nTrained on full training set")
     print(prob_of_error(predictions, y_test))
+    get_metrics_on_results(predictions, y_test)
+
     from data.grab_and_partition import split_data_by_lobby
 
     # ******************************* Play with data set *******************************
@@ -84,10 +88,12 @@ def main():
     y_tourn_test = test_tournament[:, 0]
 
 
-    log_reg = LogisticRegression(max_iter=1000)
+    log_reg = LogisticRegressionCV(Cs=50, cv=3, max_iter=500)
     log_reg.fit(X_tourn_train, y_tourn_train)
     tourn_predictions = log_reg.predict(X_tourn_test)
+    print(log_reg.C_)
     print("Pr(error):=", prob_of_error(tourn_predictions, y_tourn_test))
+    get_metrics_on_results(tourn_predictions, y_tourn_test)
 
     # ******************************* Play with data set *******************************
 
@@ -112,10 +118,12 @@ def main():
     y_tourn_test = test_tournament[:, 0]
 
 
-    log_reg = LogisticRegression(max_iter=1000)
+    log_reg = LogisticRegressionCV(Cs=50, cv=3, max_iter=500)
     log_reg.fit(X_one_on_one_and_tournn_train, y_one_on_one_and_tourn)
     tourn_predictions = log_reg.predict(X_tourn_test)
+    print(log_reg.C_)
     print("Pr(error):=", prob_of_error(tourn_predictions, y_tourn_test))
+    get_metrics_on_results(tourn_predictions, y_tourn_test)
 
 
 def data_with_online_winrates():
@@ -166,10 +174,12 @@ def data_with_online_winrates():
 
 
     #pipe = make_pipeline(LogisticRegression())
-    log_reg = LogisticRegression(max_iter=1000)
+    log_reg = LogisticRegressionCV(Cs=50, cv=3, max_iter=500)
     log_reg.fit(encoded_train_X, y_train)
     predictions = log_reg.predict(encoded_test_X)
+    print(log_reg.C_)
     print("Pr(error) converted 1s and -1s to winrate:=", prob_of_error(predictions, y_test))
+    get_metrics_on_results(predictions, y_test)
 
 if __name__ == '__main__':
     main()

@@ -17,7 +17,7 @@ from sklearn.feature_selection import VarianceThreshold
 from sklearn.preprocessing import Normalizer
 #from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 from sklearn.datasets import make_classification
-from data.grab_and_partition import get_data, win_amounts
+from data.grab_and_partition import get_data, win_amounts, get_metrics_on_results
 from sklearn.naive_bayes import CategoricalNB
 
 def prob_of_error(predictions, true_labels):
@@ -56,6 +56,8 @@ def main():
     print("\nTest Set Pr(Error)\nTrained on full training set")
     print("Optimal alpha:= {}".format(optimal_alpha))
     print(prob_of_error(predictions, y_test))
+    get_metrics_on_results(predictions, y_test)
+
     """
     Optimal alpha:= 21.544346900318867
 
@@ -116,6 +118,7 @@ def data_with_online_winrates():
     print("\nEncoded Test Set Pr(Error)\nTrained on full encoded training set")
     print("Optimal alpha:= {}".format(optimal_alpha))
     print("Pr(error) converted 1s and -1s to winrate:=", prob_of_error(predictions, y_test))
+    get_metrics_on_results(predictions, y_test)
 
     """
     Test Set Pr(Error)
@@ -126,4 +129,4 @@ def data_with_online_winrates():
     """
 if __name__ == '__main__':
     main()
-    #data_with_online_winrates()
+    data_with_online_winrates()
